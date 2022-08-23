@@ -1,36 +1,101 @@
-from tkinter import *
-from tkinter import filedialog
-import re
 import os
+import re
+from tkinter import *
 import tkinter as tk
+from tkinter import filedialog, ttk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from docx2pdf import  convert
+import comtypes.client
 
 global path
-filesListToConvert = [] #a global list to store path of files
+global ChoixFct
+filesListToConvert = []  #a global list to store path of files
+ChoixFct =' Word to Pdf' #default value
 
-# def convertFunction():
-#     for name in filesListToConvert:
-#         # convert(r"C:\Users\Hp\OneDrive\Bureau\test.docx",r"C:\Users\Hp\OneDrive\Bureau\test.pdf")
-#         print(name)
+# ppt to pdf function
+def PPTtoPDF(inputFileName, outputFileName):
+    powerpoint = comtypes.client.CreateObject("PowerPoint.Application")
+    powerpoint.Visible = 0
+    # outputFileName = outputFileName + "ttttt.pdf"
+    deck = powerpoint.Presentations.Open(inputFileName)
+    deck.SaveAs("ttttt.pdf", 32)
+    deck.Close()
+    powerpoint.Quit()
+
+# function to change converter option
+def changeConverterFunction(event):
+    global ChoixFct
+    ChoixFct = event.widget.get()
 
 # function to put in lambda function (anonymous)
 def lambdaFunct(e):
     links = re.findall(r'(\/.*?\.[\w:]+)', e.data)
-    for link in links:
-        file_extension = os.path.splitext(link)
-        if (file_extension[1] == '.docx' or file_extension[1] == '.docm' or file_extension[1] == '.doc'):
-            lb.insert(tk.END, link)
-            filesListToConvert.append(link)
+    match ChoixFct:
+        case ' Word to Pdf':
+            for link in links:
+                file_extension = os.path.splitext(link)
+                if (file_extension[1] == '.docx' or file_extension[1] == '.docm' or file_extension[1] == '.doc'):
+                    lb.insert(tk.END, link)
+                    filesListToConvert.append(link)
+        case ' PPT to Pdf':
+            for link in links:
+                file_extension = os.path.splitext(link)
+                if (file_extension[1] == '.pptx' or file_extension[1] == '.ppt' or file_extension[1] == '.odp'):
+                    lb.insert(tk.END, link)
+                    filesListToConvert.append(link)
+        case ' EXC to Pdf':
+            for link in links:
+                file_extension = os.path.splitext(link)
+                if (file_extension[1] == '.xls'):
+                    lb.insert(tk.END, link)
+                    filesListToConvert.append(link)
+        case ' JPG to Pdf':
+            for link in links:
+                file_extension = os.path.splitext(link)
+                if (file_extension[1] == '.jpg' or file_extension[1] == '.png' or file_extension[1] == '.jpge'):
+                    lb.insert(tk.END, link)
+                    filesListToConvert.append(link)
+        case 'TXT to Pdf':
+            for link in links:
+                file_extension = os.path.splitext(link)
+                if (file_extension[1] == '.txt'):
+                    lb.insert(tk.END, link)
+                    filesListToConvert.append(link)
 
 # function for getting saving path (if you dont chose it is the same place where your file is located)
 # function of converting the list of files included
 def pathASK():
-    if 1==1:
-        path = filedialog.askdirectory()
-        for name in filesListToConvert:
-            convert(name,path)
-            # print(name)
+    path = filedialog.askdirectory()
+    match ChoixFct:
+        case ' Word to Pdf':
+            for name in filesListToConvert:
+                convert(name,path)
+                # print(name)
+        case ' PPT to Pdf':
+            for name in filesListToConvert:
+                PPTtoPDF(name,path)
+        case ' EXC to Pdf':
+            for name in filesListToConvert:
+                convert(name,path)
+        case ' JPG to Pdf':
+            for name in filesListToConvert:
+                convert(name,path)
+        case 'TXT to Pdf':
+            for name in filesListToConvert:
+                convert(name,path)
+
+# hover the buttons effect
+def hoverActive(boton, color1, color2, color3):
+	boton.configure(bg=color1)
+	def fuera(e):
+		boton.configure(bg=color1)
+	def dentro(e):
+		boton.configure(bg=color2)
+	def activo(e):
+		boton.configure(activebackground=color3)
+	boton.bind("<Enter>", dentro)
+	boton.bind("<Leave>", fuera)
+	boton.bind("<ButtonPress-1>", activo)
 
 # define of gui of app
 root = TkinterDnD.Tk()
@@ -48,11 +113,17 @@ root.geometry(f'{app_width}x{app_height}+{int(x)}+{int(y)}')
 label_1 = Label(root,width="550",height="285",bg="#EE4E34")#to colorate the space of application
 label_1.place(x=0,y=0)
 root.resizable(False,False)
-Btnpath = Button(root,fg= "#000",text="Convert Here",borderwidth=0,width=35, command=pathASK)
+ChoixFonction = ttk.Combobox(root,width=35, cursor="hand2", state="readonly", foreground= "#000")
+Btnpath = Button(root,fg= "#000",text="Convert Here", cursor="hand2",borderwidth=0,width=35, command=pathASK)
+hoverActive(Btnpath, "#ffffff", "#FCEDDA", "#ffffff")
+ChoixFonction['values'] = (' Word to Pdf',' PPT to Pdf',' EXC to Pdf',' TXT to Pdf',' JPG to Pdf') 
+ChoixFonction.pack(ipadx=5, ipady=5, padx=6, pady=4)
 Btnpath.pack( ipadx=5, ipady=5, padx=6, pady=4)
+ChoixFonction.current(0) #default value
+ChoixFonction.bind("<<ComboboxSelected>>",changeConverterFunction)
 
 
-lb = tk.Listbox(root, width=120, bd=1,height=15,selectbackground= "#EE4E34", cursor="hand2" , bg="#FCEDDA")
+lb = tk.Listbox(root, width=120, bd=1,height=13,selectbackground= "#EE4E34", cursor="hand2" , bg="#FCEDDA")
 # register the listbox as a drop target
 lb.drop_target_register(DND_FILES)
 lb.dnd_bind('<<Drop>>', lambda e: lambdaFunct(e))
