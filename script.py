@@ -1,12 +1,13 @@
 import os
 import re
+import pdfkit
 from tkinter import *
 import tkinter as tk
+from fpdf import FPDF
+import win32com.client
 from tkinter import filedialog, ttk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from docx2pdf import  convert
-import pdfkit
-from fpdf import FPDF
 
 global path
 global ChoixFct
@@ -14,7 +15,12 @@ filesListToConvert = []  #a global list to store path of files
 ChoixFct =' Word to Pdf' #default value
 
 # ppt to pdf function
-
+def PPT_to_PDF(infile_path, outfile_path):
+    powerpoint = win32com.client.Dispatch("Powerpoint.Application")
+    pdf = powerpoint.Presentations.Open(infile_path, WithWindow=False)
+    pdf.SaveAs(outfile_path, 32)
+    pdf.Close()
+    powerpoint.Quit()
 
 # function to change converter option
 def changeConverterFunction(event):
@@ -37,13 +43,13 @@ def lambdaFunct(e):
                 if (file_extension[1] == '.pptx' or file_extension[1] == '.ppt' or file_extension[1] == '.odp'):
                     lb.insert(tk.END, link)
                     filesListToConvert.append(link)
-        case ' EXC to Pdf':
-            for link in links:
-                file_extension = os.path.splitext(link)
-                if (file_extension[1] == '.xls'):
-                    lb.insert(tk.END, link)
-                    filesListToConvert.append(link)
-        case ' JPG to Pdf':
+        # case ' EXC to Pdf':
+        #     for link in links:
+        #         file_extension = os.path.splitext(link)
+        #         if (file_extension[1] == '.xls'):
+        #             lb.insert(tk.END, link)
+        #             filesListToConvert.append(link)
+        case ' IMG to Pdf':
             for link in links:
                 file_extension = os.path.splitext(link)
                 if (file_extension[1] == '.jpg' or file_extension[1] == '.png' or file_extension[1] == '.jpeg'):
@@ -68,12 +74,17 @@ def pathASK():
                 convert(name,path)
         case ' PPT to Pdf':
             for name in filesListToConvert:
-                print(name)
-                # PPTtoPDF(name,path)
-        case ' EXC to Pdf':
-            for name in filesListToConvert:
-                convert(name,path)
-        case ' JPG to Pdf':
+                # print(name)
+                cachePathName = path
+                basename = os.path.basename(name)
+                pdfFileName = os.path.splitext(basename)[0]
+                path = path + "/" + pdfFileName + ".pdf"
+                PPT_to_PDF(name,path.replace("/", "\\\\"))
+                path = cachePathName
+        # case ' EXC to Pdf':
+        #     for name in filesListToConvert:
+        #         convert(name,path)
+        case ' IMG to Pdf':
             for name in filesListToConvert:
                 pdf = FPDF()
                 cachePathName = path
@@ -132,7 +143,7 @@ root.resizable(False,False)
 ChoixFonction = ttk.Combobox(root,width=35, cursor="hand2", state="readonly", foreground= "#000")
 Btnpath = Button(root,fg= "#000",text="Convert Here", cursor="hand2",borderwidth=0,width=35, command=pathASK)
 hoverActive(Btnpath, "#ffffff", "#FCEDDA", "#ffffff")
-ChoixFonction['values'] = (' Word to Pdf',' PPT to Pdf',' EXC to Pdf',' TXT to Pdf',' JPG to Pdf') 
+ChoixFonction['values'] = (' Word to Pdf',' PPT to Pdf',' TXT to Pdf',' IMG to Pdf') 
 ChoixFonction.pack(ipadx=5, ipady=5, padx=6, pady=4)
 Btnpath.pack( ipadx=5, ipady=5, padx=6, pady=4)
 ChoixFonction.current(0) #default value
