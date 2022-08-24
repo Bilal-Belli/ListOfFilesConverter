@@ -6,6 +6,7 @@ from tkinter import filedialog, ttk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from docx2pdf import  convert
 import pdfkit
+from fpdf import FPDF
 
 global path
 global ChoixFct
@@ -45,7 +46,7 @@ def lambdaFunct(e):
         case ' JPG to Pdf':
             for link in links:
                 file_extension = os.path.splitext(link)
-                if (file_extension[1] == '.jpg' or file_extension[1] == '.png' or file_extension[1] == '.jpge'):
+                if (file_extension[1] == '.jpg' or file_extension[1] == '.png' or file_extension[1] == '.jpeg'):
                     lb.insert(tk.END, link)
                     filesListToConvert.append(link)
         case ' TXT to Pdf':
@@ -74,7 +75,16 @@ def pathASK():
                 convert(name,path)
         case ' JPG to Pdf':
             for name in filesListToConvert:
-                convert(name,path)
+                pdf = FPDF()
+                cachePathName = path
+                basename = os.path.basename(name)
+                pdfFileName = os.path.splitext(basename)[0]
+                path = path + "/" + pdfFileName + ".pdf"
+                pdf.add_page()
+                pdf.image(name, 0,0,210,297)
+                pdf.output(path, 'F')
+                path = cachePathName
+
         case ' TXT to Pdf':
             for name in filesListToConvert:
                 cachePathName = path
