@@ -1,18 +1,22 @@
 import os
 import re
+import time
 import pdfkit
 from tkinter import *
 import tkinter as tk
 from fpdf import FPDF
 import win32com.client
 from tkinter import filedialog, ttk
+from tkinter.ttk import Progressbar
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from docx2pdf import  convert
 
 global path
 global ChoixFct
+global progressPCT
 filesListToConvert = []  #a global list to store path of files
 ChoixFct =' Word to Pdf' #default value
+progressPCT = 0
 
 # ppt to pdf function
 def PPT_to_PDF(infile_path, outfile_path):
@@ -67,49 +71,50 @@ def lambdaFunct(e):
 # function for getting saving path (if you dont chose it is the same place where your file is located)
 # function of converting the list of files included
 def pathASK():
-    path = filedialog.askdirectory()
-    match ChoixFct:
-        case ' Word to Pdf':
-            for name in filesListToConvert:
-                convert(name,path)
-        case ' PPT to Pdf':
-            for name in filesListToConvert:
-                # print(name)
-                cachePathName = path
-                basename = os.path.basename(name)
-                pdfFileName = os.path.splitext(basename)[0]
-                path = path + "/" + pdfFileName + ".pdf"
-                PPT_to_PDF(name,path.replace("/", "\\\\"))
-                path = cachePathName
-        # case ' EXC to Pdf':
-        #     for name in filesListToConvert:
-        #         convert(name,path)
-        case ' IMG to Pdf':
-            for name in filesListToConvert:
-                pdf = FPDF()
-                cachePathName = path
-                basename = os.path.basename(name)
-                pdfFileName = os.path.splitext(basename)[0]
-                path = path + "/" + pdfFileName + ".pdf"
-                pdf.add_page()
-                pdf.image(name, 0,0,210,297)
-                pdf.output(path, 'F')
-                path = cachePathName
+    bar()
+    # path = filedialog.askdirectory()
+    # match ChoixFct:
+    #     case ' Word to Pdf':
+    #         for name in filesListToConvert:
+    #             convert(name,path)
+    #     case ' PPT to Pdf':
+    #         for name in filesListToConvert:
+    #             # print(name)
+    #             cachePathName = path
+    #             basename = os.path.basename(name)
+    #             pdfFileName = os.path.splitext(basename)[0]
+    #             path = path + "/" + pdfFileName + ".pdf"
+    #             PPT_to_PDF(name,path.replace("/", "\\\\"))
+    #             path = cachePathName
+    #     # case ' EXC to Pdf':
+    #     #     for name in filesListToConvert:
+    #     #         convert(name,path)
+    #     case ' IMG to Pdf':
+    #         for name in filesListToConvert:
+    #             pdf = FPDF()
+    #             cachePathName = path
+    #             basename = os.path.basename(name)
+    #             pdfFileName = os.path.splitext(basename)[0]
+    #             path = path + "/" + pdfFileName + ".pdf"
+    #             pdf.add_page()
+    #             pdf.image(name, 0,0,210,297)
+    #             pdf.output(path, 'F')
+    #             path = cachePathName
 
-        case ' TXT to Pdf':
-            for name in filesListToConvert:
-                cachePathName = path
-                with open(name) as file:
-                    basename = os.path.basename(name)
-                    pdfFileName = os.path.splitext(basename)[0]
-                    pdfFileName = pdfFileName + ".pdf"
-                    path = path + "/" +pdfFileName
-                    print(path)
-                    with open (path, "w") as output:
-                        file = file.read()
-                        file = file.replace("\n", "<br>")
-                        output.write(file)
-                path = cachePathName
+    #     case ' TXT to Pdf':
+    #         for name in filesListToConvert:
+    #             cachePathName = path
+    #             with open(name) as file:
+    #                 basename = os.path.basename(name)
+    #                 pdfFileName = os.path.splitext(basename)[0]
+    #                 pdfFileName = pdfFileName + ".pdf"
+    #                 path = path + "/" +pdfFileName
+    #                 print(path)
+    #                 with open (path, "w") as output:
+    #                     file = file.read()
+    #                     file = file.replace("\n", "<br>")
+    #                     output.write(file)
+    #             path = cachePathName
 
 # hover the buttons effect
 def hoverActive(boton, color1, color2, color3):
@@ -124,13 +129,28 @@ def hoverActive(boton, color1, color2, color3):
 	boton.bind("<Leave>", fuera)
 	boton.bind("<ButtonPress-1>", activo)
 
+# progressbar function
+def bar():
+    global progressPCT
+    for i in range(1,100):
+        progress['value'] = i
+        progressPCT = i
+        root.update_idletasks()
+        value_label['text'] = update_progress_label()
+        time.sleep(0.008)
+
+# percentage of progressbar
+def update_progress_label():
+    global progressPCT
+    return f"Current Progress: {progressPCT}%"
+
 # define of gui of app
 root = TkinterDnD.Tk()
 root.title('List Files Converter')
 root.iconbitmap('logo.ico')
 # Designate Height and Width of our app
 app_width = 750
-app_height = 300
+app_height = 350
 # The Height and Width of our pc screen
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -149,12 +169,16 @@ Btnpath.pack( ipadx=5, ipady=5, padx=6, pady=4)
 ChoixFonction.current(0) #default value
 ChoixFonction.bind("<<ComboboxSelected>>",changeConverterFunction)
 
-
 lb = tk.Listbox(root, width=120, bd=1,height=13,selectbackground= "#EE4E34", cursor="hand2" , bg="#FCEDDA")
 # register the listbox as a drop target
 lb.drop_target_register(DND_FILES)
 lb.dnd_bind('<<Drop>>', lambda e: lambdaFunct(e))
 lb.pack()
+
+progress = Progressbar(root, length=500, mode='determinate')
+progress.pack(pady=5,padx=5)
+value_label = ttk.Label(root, text=update_progress_label())
+value_label.pack(pady=1,padx=1)
 
 
 root.mainloop()
