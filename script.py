@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from docx2pdf import  convert
-import comtypes.client
+import pdfkit
 
 global path
 global ChoixFct
@@ -13,14 +13,7 @@ filesListToConvert = []  #a global list to store path of files
 ChoixFct =' Word to Pdf' #default value
 
 # ppt to pdf function
-def PPTtoPDF(inputFileName, outputFileName):
-    powerpoint = comtypes.client.CreateObject("PowerPoint.Application")
-    powerpoint.Visible = 0
-    # outputFileName = outputFileName + "ttttt.pdf"
-    deck = powerpoint.Presentations.Open(inputFileName)
-    deck.SaveAs("ttttt.pdf", 32)
-    deck.Close()
-    powerpoint.Quit()
+
 
 # function to change converter option
 def changeConverterFunction(event):
@@ -55,12 +48,14 @@ def lambdaFunct(e):
                 if (file_extension[1] == '.jpg' or file_extension[1] == '.png' or file_extension[1] == '.jpge'):
                     lb.insert(tk.END, link)
                     filesListToConvert.append(link)
-        case 'TXT to Pdf':
+        case ' TXT to Pdf':
             for link in links:
                 file_extension = os.path.splitext(link)
+                # print(file_extension[0])
                 if (file_extension[1] == '.txt'):
                     lb.insert(tk.END, link)
                     filesListToConvert.append(link)
+                    # print(os.path.splitext(link)[0])
 
 # function for getting saving path (if you dont chose it is the same place where your file is located)
 # function of converting the list of files included
@@ -70,19 +65,30 @@ def pathASK():
         case ' Word to Pdf':
             for name in filesListToConvert:
                 convert(name,path)
-                # print(name)
         case ' PPT to Pdf':
             for name in filesListToConvert:
-                PPTtoPDF(name,path)
+                print(name)
+                # PPTtoPDF(name,path)
         case ' EXC to Pdf':
             for name in filesListToConvert:
                 convert(name,path)
         case ' JPG to Pdf':
             for name in filesListToConvert:
                 convert(name,path)
-        case 'TXT to Pdf':
+        case ' TXT to Pdf':
             for name in filesListToConvert:
-                convert(name,path)
+                cachePathName = path
+                with open(name) as file:
+                    basename = os.path.basename(name)
+                    pdfFileName = os.path.splitext(basename)[0]
+                    pdfFileName = pdfFileName + ".pdf"
+                    path = path + "/" +pdfFileName
+                    print(path)
+                    with open (path, "w") as output:
+                        file = file.read()
+                        file = file.replace("\n", "<br>")
+                        output.write(file)
+                path = cachePathName
 
 # hover the buttons effect
 def hoverActive(boton, color1, color2, color3):
