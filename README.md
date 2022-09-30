@@ -15,7 +15,7 @@
 </div>
 <h3 align="left">For Essay:</h3>
 <div>
-   <p ><a href="#" target="_blank">This is the link</a></p>
+   <p >Clone this project, and install all imported =libraries, finally execute and enjoy!</p>
    <p >Note: it work only on windows (because of path)</p>
 </div>
 
