@@ -10,6 +10,7 @@ from tkinter import filedialog, ttk
 from tkinter.ttk import Progressbar
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from docx2pdf import  convert
+from PIL import ImageTk, Image
 
 global path
 global ChoixFct
@@ -153,7 +154,9 @@ def finishWindow():
     secondWindow_height = 100
     secondWindow = tk.Toplevel()
     secondWindow.title("Files Converter")
-    secondWindow.iconbitmap('./logo/logo.ico')
+    img = Image.open('./logo.ico')
+    icon = ImageTk.PhotoImage(img)
+    secondWindow.iconbitmap(True, icon)
     secondWindow.resizable(False,False)
     secondWindowx = (screen_width / 2) - (secondWindow_width / 2)
     secondWindowy = (screen_height / 2 ) - (secondWindow_height / 2)
@@ -170,7 +173,9 @@ def finishWindow():
 # define of gui of app
 root = TkinterDnD.Tk()
 root.title('Files Converter')
-root.iconbitmap('./logo/logo.ico')
+img = Image.open('./logo.ico')
+icon = ImageTk.PhotoImage(img)
+root.iconphoto(True, icon)
 # Designate Height and Width of our app
 app_width = 750
 app_height = 350
