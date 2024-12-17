@@ -154,9 +154,6 @@ def finishWindow():
     secondWindow_height = 100
     secondWindow = tk.Toplevel()
     secondWindow.title("Files Converter")
-    img = Image.open('./logo.ico')
-    icon = ImageTk.PhotoImage(img)
-    secondWindow.iconbitmap(True, icon)
     secondWindow.resizable(False,False)
     secondWindowx = (screen_width / 2) - (secondWindow_width / 2)
     secondWindowy = (screen_height / 2 ) - (secondWindow_height / 2)
